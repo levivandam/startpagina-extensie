@@ -1,0 +1,39 @@
+MIJN STARTPAGINA — versie 5
+
+INSTALLEREN (Mac en Windows hetzelfde)
+1. Pak de zip uit en zet de map "mijn-startpagina" op een vaste plek.
+2. Ga in Chrome naar  chrome://extensions  en zet rechtsboven "Ontwikkelaarsmodus" aan.
+3. Klik op "Uitgepakt laden" en kies de map waarin manifest.json staat.
+4. Open een nieuw tabblad. Vraagt Chrome of je de wijziging wilt behouden: kies "Behouden".
+
+BIJWERKEN VANAF EEN OUDERE VERSIE
+Vervang de hele inhoud van je map door deze bestanden (oude bestanden mogen weg)
+en klik op chrome://extensions bij de extensie op het ronde pijltje.
+Je apps en instellingen blijven bewaard; instellingen die niet meer bestaan
+worden automatisch omgezet.
+
+GEBRUIK
+- Potlood rechtsboven (of E): apps toevoegen, slepen om te ordenen, verwijderen.
+- Schuifjes rechtsboven (of S): instellingen.
+- Rechtsklik op een app: snelmenu.
+- 1 t/m 9: app openen. / = zoeken. Pijltjes = andere pagina. ? = alle sneltoetsen.
+
+WISSELENDE ACHTERGROND
+Instellingen > Achtergrond > Wisselen: elke dag of elk nieuw tabblad.
+Kies bij "Wissel tussen" welke thema's meedoen. Zolang wisselen aanstaat, zet een klik
+op een foto hem uit (of weer aan) in de wisseling.
+
+GLAZEN KLOK
+Instellingen > Klok & begroeting > "Cijfers van Liquid glass". Werkt met elke klokstijl.
+
+EIGEN BEGROETINGEN
+Instellingen > Klok & begroeting > Begroetingen: "Mijn eigen + ingebouwd" of "Alleen mijn eigen".
+Eén begroeting per regel. {naam} = je naam, {dag} = de dag van vandaag.
+Zet ochtend:, middag:, avond: of nacht: vooraan om een regel alleen dan te tonen. Voorbeeld:
+  Hé {naam} 👋
+  ochtend: Goedemorgen, {naam}. Eerst koffie?
+  avond: Lekker gewerkt vandaag, {naam}
+
+BRONNEN
+Foto's: Unsplash. App-iconen: homarr-labs/dashboard-icons. Merklogo's: Simple Icons.
+Lettertypes: Inter, JetBrains Mono, Playfair Display (SIL Open Font License).

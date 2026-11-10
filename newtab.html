@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <title>Nieuw tabblad</title>
+  <link rel="icon" href="icons/icon32.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="boot.js"></script>
+  <script src="data/backgrounds.js" defer></script>
+  <script src="greetings.js" defer></script>
+  <script src="liquid.js" defer></script>
+  <script src="glassclock.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <svg id="lg-defs" width="0" height="0" style="position:absolute" aria-hidden="true"></svg>
+  <div id="bg"></div>
+  <div id="bg-photo"></div>
+  <div id="bg-dim"></div>
+
+  <main id="main">
+    <section id="clock-wrap">
+      <div id="clock" class="clock-text"></div>
+      <div id="date" class="date-text"></div>
+      <div id="greeting"></div>
+    </section>
+
+    <form id="search" autocomplete="off" role="search">
+      <svg class="search-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="text" placeholder="Zoeken" aria-label="Zoeken">
+      <div id="suggest" hidden></div>
+    </form>
+
+    <section id="pager"><div id="track"></div></section>
+    <nav id="dots" aria-label="Pagina's"></nav>
+    <p id="empty-hint" hidden>Nog geen apps. Klik rechtsboven op het potloodje om apps toe te voegen.</p>
+  </main>
+
+  <div id="topbar">
+    <button id="btn-edit" class="round" title="Apps bewerken (E)" aria-label="Apps bewerken">
+      <svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="m14 6 4 4"/></svg>
+    </button>
+    <button id="btn-settings" class="round" title="Instellingen (S)" aria-label="Instellingen">
+      <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    </button>
+  </div>
+
+  <div id="editbar" hidden>
+    <button id="eb-add">+ App</button>
+    <button id="eb-page">+ Pagina</button>
+    <button id="eb-done" class="primary">Klaar</button>
+  </div>
+
+  <!-- ================= Instellingen ================= -->
+  <aside id="settings" aria-label="Instellingen">
+    <header>
+      <h2>Instellingen</h2>
+      <button id="settings-close" class="icon-btn" aria-label="Sluiten">✕</button>
+    </header>
+
+    <label class="switch-row">
+      <span><b>Liquid glass</b><small>Iconen, zoekbalk, klok en knoppen van glas, zoals bij Apple</small></span>
+      <input type="checkbox" id="liquid-all" class="switch">
+    </label>
+
+    <details open>
+      <summary>Achtergrond</summary>
+      <div class="chips" data-chips="bg.type">
+        <button data-v="gallery">Foto's</button>
+        <button data-v="gradient">Verloop</button>
+        <button data-v="color">Kleur</button>
+        <button data-v="image">Eigen foto</button>
+      </div>
+      <div data-show="bg.type=gallery">
+        <label class="row">Wisselen
+          <select data-path="bg.rotate">
+            <option value="off">Nee, vaste foto</option>
+            <option value="day">Elke dag</option>
+            <option value="tab">Elk nieuw tabblad</option>
+          </select></label>
+        <div data-show="bg.rotate!=off">
+          <label class="row">Kiezen uit
+            <select data-path="bg.rotateFrom">
+              <option value="themes">Thema's die ik kies</option>
+              <option value="fav">Mijn favorieten ♥</option>
+            </select></label>
+          <div data-show="bg.rotateFrom=themes" class="rot-box">
+            <p class="label-sm">Wissel tussen</p>
+            <div class="chips small" id="rot-themes"></div>
+            <p class="note" id="rot-count"></p>
+          </div>
+        </div>
+        <p class="label-sm">Foto's bekijken</p>
+        <div class="chips small" id="theme-chips"></div>
+        <div class="thumbs" id="bg-thumbs"></div>
+        <p class="note" id="thumbs-note"></p>
+      </div>
+      <div data-show="bg.type=gradient"><div class="swatches" id="gradient-swatches"></div></div>
+      <div data-show="bg.type=color"><label class="row">Kleur <input type="color" data-path="bg.color"></label></div>
+      <div data-show="bg.type=image">
+        <button id="bg-upload-btn" class="wide">Afbeelding kiezen…</button>
+        <input id="bg-file" type="file" accept="image/*" hidden>
+        <p class="note">Een eigen foto blijft op dit apparaat. Foto's uit de galerij syncen wél mee.</p>
+      </div>
+      <label class="row">Donkerder <output data-out="bg.dim" data-unit="%" data-scale="100"></output>
+        <input type="range" min="0" max="0.7" step="0.05" data-path="bg.dim"></label>
+      <label class="row">Vervagen <output data-out="bg.blur" data-unit="px"></output>
+        <input type="range" min="0" max="20" data-path="bg.blur"></label>
+    </details>
+
+    <details>
+      <summary>Klok &amp; begroeting</summary>
+      <label class="check"><input type="checkbox" data-path="clock.show"> Klok tonen</label>
+      <div class="style-cards" id="clock-styles"></div>
+      <label class="check"><input type="checkbox" data-path="clock.glass"> Cijfers van Liquid glass</label>
+      <p class="note" data-show="clock.glass=true">Werkt met elke stijl. Het mooist met Vet: dikkere cijfers laten meer van het glas zien.</p>
+      <label class="row">Grootte <output data-out="clock.size" data-unit="px"></output>
+        <input type="range" min="40" max="160" step="2" data-path="clock.size"></label>
+      <div class="pair">
+        <label class="check"><input type="checkbox" data-path="clock.seconds"> Seconden</label>
+        <label class="check"><input type="checkbox" data-path="clock.hour12"> 12-uursklok</label>
+      </div>
+      <label class="row">Plaats
+        <select data-path="clock.position">
+          <option value="center">Midden</option>
+          <option value="left">Linksboven</option>
+        </select></label>
+      <hr>
+      <label class="check"><input type="checkbox" data-path="clock.showDate"> Datum tonen</label>
+      <label class="row" data-show="clock.showDate=true">Notatie
+        <select data-path="clock.dateStyle">
+          <option value="long">Dinsdag 3 november</option>
+          <option value="week">Dinsdag 3 november · week 45</option>
+          <option value="short">Di 3 nov</option>
+          <option value="numeric">03-11-2026</option>
+        </select></label>
+      <label class="row" data-show="clock.showDate=true">Stijl
+        <select data-path="clock.dateLook">
+          <option value="match">Passend bij de klok</option>
+          <option value="caps">HOOFDLETTERS, RUIM</option>
+          <option value="subtle">Klein en rustig</option>
+        </select></label>
+      <hr>
+      <label class="check"><input type="checkbox" data-path="clock.greeting"> Begroeting tonen</label>
+      <div data-show="clock.greeting=true">
+        <label class="row">Je naam <input type="text" maxlength="30" placeholder="Bijv. Levi" data-path="clock.name"></label>
+        <label class="row">Begroetingen
+          <select data-path="greet.mode">
+            <option value="auto">Wisselend (ingebouwd)</option>
+            <option value="mix">Mijn eigen + ingebouwd</option>
+            <option value="own">Alleen mijn eigen</option>
+          </select></label>
+        <div data-show="greet.mode!=auto">
+          <label class="stack">Mijn begroetingen, één per regel
+            <textarea id="greet-lines" rows="6" spellcheck="false" placeholder="Hé {naam} 👋&#10;ochtend: Goedemorgen, {naam}. Eerst koffie?&#10;avond: Lekker gewerkt vandaag, {naam}&#10;Fijne {dag}!"></textarea></label>
+          <p class="note"><code>{naam}</code> wordt je naam, <code>{dag}</code> de dag van vandaag. Zet <code>ochtend:</code>, <code>middag:</code>, <code>avond:</code> of <code>nacht:</code> vooraan als een regel alleen dan mag verschijnen.</p>
+        </div>
+        <div class="greet-preview">
+          <span id="greet-prev"></span>
+          <button id="greet-shuffle" type="button" title="Toon een andere">↻</button>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Apps &amp; iconen</summary>
+      <div class="style-cards icons" id="icon-styles"></div>
+      <div data-show="icons.style=liquid" class="rot-box">
+        <label class="row">Glas donkerder <output data-out="appearance.lgDark" data-unit="%" data-scale="100"></output>
+          <input type="range" min="0" max="0.6" step="0.05" data-path="appearance.lgDark"></label>
+        <label class="row">Vervorming aan de rand <output data-out="appearance.lgDepth"></output>
+          <input type="range" min="0" max="100" data-path="appearance.lgDepth"></label>
+      </div>
+      <label class="row">Vorm
+        <select data-path="icons.shape">
+          <option value="rounded">Afgerond</option>
+          <option value="circle">Rond</option>
+          <option value="square">Vierkant</option>
+        </select></label>
+      <label class="row">Schaduw
+        <select data-path="icons.shadow">
+          <option value="soft">Zacht</option>
+          <option value="float">Zwevend</option>
+          <option value="none">Geen</option>
+        </select></label>
+      <label class="row">Bij aanwijzen
+        <select data-path="icons.hover">
+          <option value="lift">Optillen</option>
+          <option value="dock">Vergroten zoals het Dock</option>
+          <option value="none">Niets</option>
+        </select></label>
+      <label class="row">Kolommen <output data-out="grid.cols"></output>
+        <input type="range" min="3" max="10" data-path="grid.cols"></label>
+      <label class="row">Rijen <output data-out="grid.rows"></output>
+        <input type="range" min="1" max="5" data-path="grid.rows"></label>
+      <label class="row">Grootte <output data-out="grid.iconSize" data-unit="px"></output>
+        <input type="range" min="44" max="112" step="2" data-path="grid.iconSize"></label>
+      <div class="pair">
+        <label class="check"><input type="checkbox" data-path="grid.showLabels"> Namen tonen</label>
+        <label class="check"><input type="checkbox" data-path="grid.newTab"> In nieuw tabblad</label>
+      </div>
+    </details>
+
+    <details>
+      <summary>Zoekbalk</summary>
+      <label class="check"><input type="checkbox" data-path="search.show"> Zoekbalk tonen</label>
+      <label class="row">Zoekmachine
+        <select data-path="search.engine">
+          <option value="google">Google</option>
+          <option value="duckduckgo">DuckDuckGo</option>
+          <option value="bing">Bing</option>
+          <option value="ecosia">Ecosia</option>
+        </select></label>
+      <label class="row">Stijl
+        <select data-path="search.style">
+          <option value="glass">Glas</option>
+          <option value="solid">Wit</option>
+          <option value="dark">Donker</option>
+          <option value="liquid">Liquid glass</option>
+        </select></label>
+      <label class="row">Breedte <output data-out="search.width" data-unit="px"></output>
+        <input type="range" min="320" max="860" step="10" data-path="search.width"></label>
+      <label class="check"><input type="checkbox" data-path="search.suggest"> Mijn apps voorstellen tijdens het typen</label>
+    </details>
+
+    <details>
+      <summary>Meer</summary>
+      <label class="row">Tekstkleur <input type="color" data-path="appearance.textColor"></label>
+      <div class="btn-row">
+        <button id="export-btn">Back-up maken</button>
+        <button id="import-btn">Back-up terugzetten</button>
+        <input id="import-file" type="file" accept="application/json,.json" hidden>
+      </div>
+      <button id="refresh-icons" class="wide">Automatische iconen opnieuw zoeken</button>
+      <button id="show-help" class="wide">Sneltoetsen (?)</button>
+      <button id="reset-btn" class="danger wide">Alles terugzetten naar standaard</button>
+    </details>
+  </aside>
+
+  <!-- ================= App toevoegen / bewerken ================= -->
+  <dialog id="app-dialog">
+    <form id="app-form" method="dialog">
+      <h3 id="app-dialog-title">App toevoegen</h3>
+      <div class="dialog-grid">
+        <div id="app-preview" class="preview"></div>
+        <div class="fields">
+          <label class="stack">Naam <input id="f-name" type="text" required maxlength="40" placeholder="Bijv. Gmail"></label>
+          <label class="stack">Adres <input id="f-url" type="text" required placeholder="Bijv. mail.google.com"></label>
+        </div>
+      </div>
+      <button type="button" id="f-gallery-btn" class="gallery-btn">Icoon zoeken in de galerij</button>
+      <fieldset class="seg">
+        <legend>Of kies zelf</legend>
+        <label><input type="radio" name="itype" value="auto" checked><span>Automatisch</span></label>
+        <label class="pick-only"><input type="radio" name="itype" value="pick"><span>Uit galerij</span></label>
+        <label><input type="radio" name="itype" value="letter"><span>Letter</span></label>
+        <label><input type="radio" name="itype" value="emoji"><span>Emoji</span></label>
+        <label><input type="radio" name="itype" value="image"><span>Uploaden</span></label>
+      </fieldset>
+      <div class="itype-opt" data-itype="emoji">
+        <label class="stack">Emoji <input id="f-emoji" type="text" maxlength="8" placeholder="📚"></label>
+      </div>
+      <div class="itype-opt" data-itype="image">
+        <button type="button" id="f-img-btn" class="wide">Afbeelding kiezen…</button>
+        <input id="f-img" type="file" accept="image/*" hidden>
+      </div>
+      <div class="itype-opt" data-itype="letter emoji auto image pick">
+        <label class="row">Tegelkleur
+          <span class="inline">
+            <input id="f-bg" type="color" value="#ffffff">
+            <label class="check small"><input id="f-bg-auto" type="checkbox" checked> automatisch</label>
+          </span>
+        </label>
+      </div>
+      <label class="row">Pagina <select id="f-page"></select></label>
+      <div class="dialog-actions">
+        <button type="button" id="f-delete" class="danger">Verwijderen</button>
+        <span class="spacer"></span>
+        <button type="button" id="f-cancel">Annuleren</button>
+        <button type="submit" class="primary">Opslaan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="icon-gallery">
+    <div class="dlg-head">
+      <h3>Icoon kiezen</h3>
+      <button type="button" id="gal-close" class="icon-btn" aria-label="Sluiten">✕</button>
+    </div>
+    <form id="gal-search" autocomplete="off">
+      <input id="gal-q" type="text" placeholder="Zoek op naam, bijv. netflix of spotify">
+    </form>
+    <div id="gal-body"></div>
+  </dialog>
+
+  <dialog id="help">
+    <div class="dlg-head"><h3>Sneltoetsen</h3><button type="button" id="help-close" class="icon-btn" aria-label="Sluiten">✕</button></div>
+    <div class="keys">
+      <span><kbd>1</kbd>–<kbd>9</kbd></span><span>App 1 tot 9 van deze pagina openen</span>
+      <span><kbd>←</kbd> <kbd>→</kbd></span><span>Vorige / volgende pagina</span>
+      <span><kbd>/</kbd></span><span>Zoeken (typ ook om je eigen apps te vinden)</span>
+      <span><kbd>E</kbd></span><span>Apps bewerken</span>
+      <span><kbd>S</kbd></span><span>Instellingen</span>
+      <span><kbd>?</kbd></span><span>Dit overzicht</span>
+      <span><kbd>Esc</kbd></span><span>Sluiten</span>
+    </div>
+  </dialog>
+
+  <div id="ctx" class="ctx" hidden></div>
+  <div id="toast" class="toast" hidden></div>
+</body>
+</html>
